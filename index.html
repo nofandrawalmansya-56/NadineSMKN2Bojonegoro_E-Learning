@@ -1,0 +1,879 @@
+<!DOCTYPE1 html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Digital: Konsep Dasar Sistem Operasi & Manajemen Memori/Proses</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-active {
+            border-bottom: 3px solid #0284c7;
+            color: #0284c7;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- TOP HEADER / NAVIGATION -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-brand-600 text-white p-2.5 rounded-xl shadow-md">
+                        <i class="fa-solid fa-microchip text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 text-lg sm:text-xl leading-tight">Modul Pembelajaran SO</h1>
+                        <p class="text-xs text-slate-500 font-medium">Sistem Operasi, Memori & Manajemen Proses</p>
+                    </div>
+                </div>
+
+                <!-- User Badge & Role Switcher -->
+                <div class="flex items-center space-x-3">
+                    <div id="userInfoDisplay" class="hidden sm:flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span id="userNameTag" class="font-semibold text-slate-700">Tamu</span>
+                        <span id="userRoleTag" class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Siswa</span>
+                    </div>
+
+                    <button onclick="openAuthModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2 shadow">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span>Ganti User / Login</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="bg-white border-b border-slate-200 shadow-2xs sticky top-16 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto custom-scrollbar">
+            <div class="flex space-x-8 text-sm font-medium whitespace-nowrap" id="navigationTabs">
+                <button onclick="switchTab('materi')" id="tab-materi" class="py-4 px-1 tab-active flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Materi Kurikulum (Bab 1-5)</span>
+                </button>
+                <button onclick="switchTab('praktikum')" id="tab-praktikum" class="py-4 px-1 text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Bab 6: Praktikum & Lab</span>
+                </button>
+                <button onclick="switchTab('simulasi')" id="tab-simulasi" class="py-4 px-1 text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Simulator CPU & Memori</span>
+                </button>
+                <button onclick="switchTab('evaluasi')" id="tab-evaluasi" class="py-4 px-1 text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Bab 7: Ujian & Evaluasi</span>
+                </button>
+                <button onclick="switchTab('game')" id="tab-game" class="py-4 px-1 text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Game OS & Flashcards</span>
+                </button>
+                <button onclick="switchTab('feedback')" id="tab-feedback" class="py-4 px-1 text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Umpan Balik & Feedback</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- ==================== TAB 1: MATERI KURIKULUM (BAB 1-5) ==================== -->
+        <section id="content-materi" class="space-y-8">
+            <div class="bg-gradient-to-r from-brand-900 via-brand-700 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+                <div class="max-w-3xl space-y-3">
+                    <span class="bg-brand-500/30 text-brand-200 border border-brand-400/30 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">Modul Pembelajaran Utama</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold">Konsep Dasar Sistem Operasi, Manajemen Memori & Proses</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Pelajari bagaimana sistem operasi bertindak sebagai jembatan antara perangkat keras dan perangkat lunak, mengelola eksekusi proses CPU, serta mengalokasikan ruang memori secara efisien.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Chapter Navigation Selector -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <button onclick="showBab(1)" id="babBtn-1" class="p-4 rounded-xl border border-brand-500 bg-brand-50 text-brand-700 font-bold text-center text-xs sm:text-sm shadow-xs transition">BAB 1: Pengenalan OS</button>
+                <button onclick="showBab(2)" id="babBtn-2" class="p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-center text-xs sm:text-sm shadow-xs transition">BAB 2: Struktur OS</button>
+                <button onclick="showBab(3)" id="babBtn-3" class="p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-center text-xs sm:text-sm shadow-xs transition">BAB 3: Manajemen Proses</button>
+                <button onclick="showBab(4)" id="babBtn-4" class="p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-center text-xs sm:text-sm shadow-xs transition">BAB 4: Manajemen Memori</button>
+                <button onclick="showBab(5)" id="babBtn-5" class="p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-center text-xs sm:text-sm shadow-xs transition">BAB 5: Integrasi RAM & CPU</button>
+            </div>
+
+            <!-- BAB CONTENT AREA -->
+            <div id="babContentArea" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-10 shadow-xs space-y-8">
+                <!-- Dynamically Populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: PRAKTIKUM & LAB (BAB 6) ==================== -->
+        <section id="content-praktikum" class="hidden space-y-8">
+            <div class="bg-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+                <h2 class="text-2xl font-bold mb-2">BAB 6 – Laboratorium Praktikum & Observasi Sistem</h2>
+                <p class="text-slate-400 text-sm">Panduan langkah demi langkah praktikum eksperimen langsung mengamati manajemen proses, alokasi memori, dan performa komputer.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Lab Card 1 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 space-y-4 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-md">Praktikum #1</span>
+                        <i class="fa-solid fa-desktop text-slate-400"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg">Observasi Proses Menggunakan Task Manager / Activity Monitor</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                        <strong>Tujuan:</strong> Mengidentifikasi status proses, PID (Process ID), penggunaan CPU, dan memori RAM yang digunakan oleh aplikasi yang sedang berjalan secara real-time.
+                    </p>
+                    <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-2 text-slate-700 border border-slate-200">
+                        <p class="font-semibold text-slate-900">Langkah Kerja:</p>
+                        <ol class="list-decimal pl-4 space-y-1">
+                            <li>Buka Task Manager (`Ctrl + Shift + Esc`) pada Windows atau Activity Monitor pada macOS.</li>
+                            <li>Pilih tab <em>Processes</em> atau <em>Details</em>.</li>
+                            <li>Urutkan aplikasi berdasarkan konsumsi Memori (RAM) tertinggi.</li>
+                            <li>Buka peramban web (Chrome/Edge) dengan 5 tab baru, lalu amati kenaikan konsumsi RAM.</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tabel Catatan Pengamatan Siswa:</label>
+                        <textarea class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500 outline-none" rows="3" placeholder="Tuliskan nama proses dengan konsumsi RAM terbesar dan nilai PID-nya di sini..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Lab Card 2 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 space-y-4 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-md">Praktikum #2</span>
+                        <i class="fa-solid fa-terminal text-slate-400"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg">Manajemen Proses via Command Line (CLI / Terminal)</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                        <strong>Tujuan:</strong> Mempraktikkan perintah dasar sistem operasi untuk melihat, menghentikan (kill), dan memprioritaskan proses via CLI.
+                    </p>
+                    <div class="bg-slate-900 text-emerald-400 p-3 rounded-lg text-xs font-mono space-y-1 shadow-inner">
+                        <p># Menampilkan daftar proses di Linux/macOS:</p>
+                        <p class="text-white">$ ps aux | grep python</p>
+                        <p># Menghentikan proses berdasarkan PID:</p>
+                        <p class="text-white">$ kill -9 4821</p>
+                        <p># Menampilkan proses di Windows CMD:</p>
+                        <p class="text-white">C:\> tasklist /FI "MEMUSAGE gt 50000"</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Hasil Analisis Terminal:</label>
+                        <textarea class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500 outline-none" rows="3" placeholder="Tuliskan perintah yang berhasil Anda eksekusi beserta fungsinya..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: SIMULATOR INTERAKTIF ==================== -->
+        <section id="content-simulasi" class="hidden space-y-8">
+            <div class="bg-brand-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+                <h2 class="text-2xl font-bold mb-2">Simulator Interaktif Sistem Operasi</h2>
+                <p class="text-brand-200 text-sm">Visualisasikan algoritma CPU Scheduling dan alokasi memori komputer secara langsung.</p>
+            </div>
+
+            <!-- CPU Scheduler Visualizer -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">1. Simulator Penjadwalan CPU (CPU Scheduling)</h3>
+                        <p class="text-xs text-slate-500">Hitung Gantt Chart dan Average Waiting Time (AWT)</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs font-semibold text-slate-700">Algoritma:</label>
+                        <select id="simAlgoSelect" class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold bg-slate-50 focus:ring-2 focus:ring-brand-500">
+                            <option value="FCFS">First Come First Served (FCFS)</option>
+                            <option value="SJF">Shortest Job First (SJF Non-preemptive)</option>
+                        </select>
+                        <button onclick="runCpuSimulation()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow">Jalankan</button>
+                    </div>
+                </div>
+
+                <!-- Process Input Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-700">
+                        <thead class="bg-slate-100 font-bold uppercase text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Nama Proses</th>
+                                <th class="p-3">Waktu Kedatangan (Arrival Time)</th>
+                                <th class="p-3">Waktu Eksekusi (Burst Time)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 font-mono">
+                            <tr>
+                                <td class="p-3 font-bold text-brand-600">Proses P1</td>
+                                <td class="p-3">0 ms</td>
+                                <td class="p-3"><input type="number" id="p1Burst" value="6" class="w-20 border border-slate-300 rounded px-2 py-1 text-xs"> ms</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-emerald-600">Proses P2</td>
+                                <td class="p-3">0 ms</td>
+                                <td class="p-3"><input type="number" id="p2Burst" value="2" class="w-20 border border-slate-300 rounded px-2 py-1 text-xs"> ms</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-purple-600">Proses P3</td>
+                                <td class="p-3">0 ms</td>
+                                <td class="p-3"><input type="number" id="p3Burst" value="8" class="w-20 border border-slate-300 rounded px-2 py-1 text-xs"> ms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Simulation Output -->
+                <div id="simResultArea" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Hasil Gantt Chart & Kalkulasi:</h4>
+                    <div id="ganttChart" class="flex items-center space-x-1 font-mono text-xs font-bold text-white pt-2 overflow-x-auto pb-2">
+                        <!-- Rendered by JS -->
+                    </div>
+                    <div id="awtResult" class="text-xs text-slate-700 font-semibold bg-white p-3 rounded-lg border border-slate-200">
+                        Klik tombol "Jalankan" untuk melihat hasil perhitungan AWT.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: UJIAN & EVALUASI (BAB 7) ==================== -->
+        <section id="content-evaluasi" class="hidden space-y-8">
+            <div class="bg-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold mb-2">BAB 7 – Evaluasi & Asesmen Pembelajaran</h2>
+                    <p class="text-slate-400 text-sm">Uji pemahaman Anda mengenai Konsep Sistem Operasi, Manajemen Memori, dan Penjadwalan Proses.</p>
+                </div>
+                <div id="quizScoreBadge" class="hidden bg-emerald-500 text-white font-extrabold text-xl px-4 py-2 rounded-xl shadow-lg text-center">
+                    <span class="block text-[10px] font-normal uppercase">Skor Anda</span>
+                    <span id="quizScoreVal">0/100</span>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quizContainer" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 space-y-8 shadow-xs">
+                <!-- Dynamically populated quiz questions -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB 5: GAME OS & FLASHCARDS ==================== -->
+        <section id="content-game" class="hidden space-y-8">
+            <div class="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+                <h2 class="text-2xl font-bold mb-2">OS Quest Mini-Game & Flashcard Arena</h2>
+                <p class="text-indigo-200 text-sm">Asah daya ingat istilah sistem operasi dengan kartu interaktif dan tantangan waktu.</p>
+            </div>
+
+            <!-- Flashcards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div onclick="flipCard(this)" class="bg-white border border-slate-200 rounded-2xl p-6 cursor-pointer hover:shadow-lg transition min-h-[160px] flex flex-col justify-between group">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md">Istilah #1</span>
+                        <i class="fa-solid fa-rotate text-slate-300 group-hover:text-brand-500 transition"></i>
+                    </div>
+                    <div class="card-front text-center py-4">
+                        <h4 class="font-extrabold text-slate-800 text-lg">Kernel</h4>
+                        <p class="text-xs text-slate-400 mt-1">(Klik untuk melihat arti)</p>
+                    </div>
+                    <div class="card-back hidden text-slate-600 text-xs leading-relaxed text-center py-2">
+                        Inti utama dari sistem operasi yang mengelola komunikasi langsung antara aplikasi dan hardware komputer.
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div onclick="flipCard(this)" class="bg-white border border-slate-200 rounded-2xl p-6 cursor-pointer hover:shadow-lg transition min-h-[160px] flex flex-col justify-between group">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-md">Istilah #2</span>
+                        <i class="fa-solid fa-rotate text-slate-300 group-hover:text-purple-500 transition"></i>
+                    </div>
+                    <div class="card-front text-center py-4">
+                        <h4 class="font-extrabold text-slate-800 text-lg">Context Switching</h4>
+                        <p class="text-xs text-slate-400 mt-1">(Klik untuk melihat arti)</p>
+                    </div>
+                    <div class="card-back hidden text-slate-600 text-xs leading-relaxed text-center py-2">
+                        Proses menyimpan status satu proses dan memuat status proses lain agar CPU dapat beralih tugas tanpa kehilangan data.
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div onclick="flipCard(this)" class="bg-white border border-slate-200 rounded-2xl p-6 cursor-pointer hover:shadow-lg transition min-h-[160px] flex flex-col justify-between group">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Istilah #3</span>
+                        <i class="fa-solid fa-rotate text-slate-300 group-hover:text-emerald-500 transition"></i>
+                    </div>
+                    <div class="card-front text-center py-4">
+                        <h4 class="font-extrabold text-slate-800 text-lg">Virtual Memory</h4>
+                        <p class="text-xs text-slate-400 mt-1">(Klik untuk melihat arti)</p>
+                    </div>
+                    <div class="card-back hidden text-slate-600 text-xs leading-relaxed text-center py-2">
+                        Teknik manajemen memori yang menggunakan sebagian ruang harddisk/SSD seolah-olah menjadi RAM tambahan.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 6: UMPAN BALIK & FEEDBACK ==================== -->
+        <section id="content-feedback" class="hidden space-y-8">
+            <div class="bg-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold mb-1">Umpan Balik Pengalaman Belajar</h2>
+                    <p class="text-slate-400 text-sm">Bantu kami meningkatkan kualitas materi modul pembelajaran ini.</p>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-center">
+                    <span class="block text-[10px] text-slate-400 font-bold uppercase">Total Feedback</span>
+                    <span id="totalFeedbackCount" class="text-xl font-extrabold text-brand-400">0</span>
+                </div>
+            </div>
+
+            <!-- Feedback Input Form (Visible to Students) -->
+            <div id="feedbackFormSection" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <h3 class="font-bold text-slate-900 text-base">Kirimkan Masukan / Kesan Belajar Anda</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Balikan:</label>
+                        <select id="fbCategory" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500">
+                            <option value="Materi Pembelajaran">Kualitas Materi Pembelajaran</option>
+                            <option value="Simulasi & Praktikum">Kelancaran Simulasi & Lab</option>
+                            <option value="Tampilan & UI/UX">Desain Tampilan Aplikasi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Beri Rating (1-5 Bintang):</label>
+                        <select id="fbRating" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500 font-bold text-amber-500">
+                            <option value="5">⭐⭐⭐⭐⭐ (Sangat Bagus)</option>
+                            <option value="4">⭐⭐⭐⭐ (Bagus)</option>
+                            <option value="3">⭐⭐⭐ (Cukup)</option>
+                            <option value="2">⭐⭐ (Perlu Perbaikan)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Pesan / Ulasan Tambahan:</label>
+                    <textarea id="fbComment" rows="3" class="w-full border border-slate-300 rounded-lg p-3 text-xs focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Tulis masukan konstruktif Anda di sini..."></textarea>
+                </div>
+                <button onclick="submitFeedback()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition shadow">Kirim Umpan Balik</button>
+            </div>
+
+            <!-- Feedback List (Visible to All, Management Available to Guru & Admin) -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-slate-900 text-base">Daftar Umpan Balik Komunitas</h3>
+                    <span id="adminFeedbackBadge" class="hidden text-xs bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-full border border-purple-200">Mode Kelola (Guru / Admin)</span>
+                </div>
+                <div id="feedbackListContainer" class="space-y-3">
+                    <!-- Dynamically populated feedback items -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
+            <p class="font-semibold text-slate-700">Platform Digital Pembelajaran Sistem Operasi & Manajemen Memori/Proses</p>
+            <p>© 2026 Modul Pembelajaran Interaktif. Seluruh Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL AUTH / LOGIN MULTI-USER -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                <h3 class="font-bold text-slate-900 text-lg">Pilih Peran & Autentikasi Pengguna</h3>
+                <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Peran Akses:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="selectRole('siswa')" id="roleBtn-siswa" class="py-2.5 rounded-lg border-2 border-brand-500 bg-brand-50 text-brand-700 font-bold text-xs">Siswa</button>
+                        <button type="button" onclick="selectRole('guru')" id="roleBtn-guru" class="py-2.5 rounded-lg border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-50">Guru</button>
+                        <button type="button" onclick="selectRole('admin')" id="roleBtn-admin" class="py-2.5 rounded-lg border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-50">Admin</button>
+                    </div>
+                </div>
+
+                <!-- Student Login Fields -->
+                <div id="studentFields" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Siswa:</label>
+                        <input type="text" id="loginStudentName" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Masukkan nama lengkap Anda">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kelas / Rombel:</label>
+                        <input type="text" id="loginStudentClass" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Contoh: X RPL 1 / XI TKJ 2">
+                    </div>
+                </div>
+
+                <!-- Teacher / Admin Fields -->
+                <div id="staffFields" class="space-y-3 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Pengguna / NIP:</label>
+                        <input type="text" id="loginStaffName" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Masukkan nama atau NIP">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
+                <button onclick="closeAuthModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button onclick="saveUserSession()" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow">Masuk Aplikasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRM DELETE FEEDBACK -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            <h4 class="font-bold text-slate-900 text-base">Konfirmasi Hapus Feedback</h4>
+            <p class="text-xs text-slate-500">Apakah Anda yakin ingin menghapus umpan balik ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="flex justify-center space-x-3 pt-2">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Batal</button>
+                <button onclick="confirmDeleteFeedback()" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // State Management
+        let currentUser = {
+            name: "Ahmad Rizky",
+            kelas: "X RPL 1",
+            role: "siswa" // 'siswa', 'guru', 'admin'
+        };
+
+        let activeBab = 1;
+        let pendingDeleteId = null;
+
+        let feedbacks = [
+            { id: 1, name: "Budi Santoso", kelas: "X TKJ 1", role: "siswa", category: "Materi Pembelajaran", rating: 5, comment: "Penjelasan mengenai Paging dan Virtual Memory sangat jelas dan mudah dipahami!", date: "2026-11-02" },
+            { id: 2, name: "Siti Rahma", kelas: "XI RPL 2", role: "siswa", category: "Simulasi & Praktikum", rating: 4, comment: "Simulator CPU Scheduling sangat membantu visualisasi Gantt Chart FCFS.", date: "2026-11-04" }
+        ];
+
+        // Detailed Course Curriculum Data (BAB 1 - BAB 5)
+        const babData = {
+            1: {
+                title: "BAB 1 – PENGENALAN SISTEM OPERASI",
+                desc: "Memahami konsep dasar, definisi, sejarah perkembangan, komponen utama, dan peran penting Sistem Operasi pada perangkat komputer modern.",
+                competency: "Siswa mampu mengidentifikasi komponen SO, membedakan jenis-jenis SO, serta menjelaskan peran SO sebagai pengelola sumber daya.",
+                submodules: [
+                    { title: "1. Pengertian & Definisi Sistem Operasi", body: "Sistem Operasi (Operating System / OS) adalah perangkat lunak sistem yang bertindak sebagai perantara (interface) antara pengguna (user) dan perangkat keras komputer (hardware). Tanpa SO, komputer hanyalah sekumpulan komponen elektronik yang tidak dapat menjalankan program aplikasi secara langsung." },
+                    { title: "2. Sejarah & Perkembangan OS", body: "Perkembangan SO dibagi menjadi 4 Generasi:\n• Generasi 1 (1945-1955): Belum ada SO, sistem dioperasikan secara manual menggunakan plugboard.\n• Generasi 2 (1955-1965): Batch Processing System (sistem pemrosesan beruntun).\n• Generasi 3 (1965-1980): Multiprogramming dan Timesharing System.\n• Generasi 4 (1980-Sekarang): GUI (Graphical User Interface), OS Terdistribusi, dan Mobile OS." },
+                    { title: "3. Peran Utama OS dalam Sistem Komputer", body: "OS memiliki dua peran mendasar:\n1. Resource Allocator: Mengatur dan mengalokasikan CPU, memori, harddisk, dan perangkat I/O di antara berbagai aplikasi yang berjalan secara adil.\n2. Control Program: Mengontrol eksekusi program pengguna untuk mencegah kesalahan (errors) dan penggunaan komputer yang tidak sah." },
+                    { title: "4. Hubungan Hardware, Software, dan Brainware", body: "Sistem komputer terdiri atas 3 elemen dasar yang tidak dipisahkan:\n- Hardware: Komponen fisik (CPU, RAM, Harddisk, Monitor).\n- Software: Program instruksi (Sistem Operasi, Aplikasi, Utility).\n- Brainware: Manusia yang mengoperasikan dan mengelola sistem komputer." },
+                    { title: "5. Jenis & Perbandingan Sistem Operasi", body: "• OS Desktop: Didesain untuk penggunaan pribadi (Windows 11, macOS, Linux Ubuntu).\n• OS Server: Didesain untuk keandalan tinggi dan layanan jaringan (Windows Server, RedHat Enterprise, Debian).\n• OS Mobile: Didesain untuk hemat energi dan kontrol layar sentuh (Android, iOS)." }
+                ]
+            },
+            2: {
+                title: "BAB 2 – STRUKTUR DAN CARA KERJA SISTEM OPERASI",
+                desc: "Pelajari arsitektur internal SO, cara kerja Kernel, System Call, Device Driver, serta perbedaan antara Mode Pengguna (User Mode) dan Mode Kernel.",
+                competency: "Siswa mampu menjelaskan aliran eksekusi instruksi dari aplikasi ke kernel hardware dan memahami arsitektur booting komputer.",
+                submodules: [
+                    { title: "1. Arsitektur Komponen Utama OS", body: "Struktur SO modern terdiri atas beberapa komponen kunci:\n• Kernel: Inti SO yang selalu berada di memori RAM.\n• User Interface: Antarmuka perintah via GUI (tampilan grafis) atau CLI (baris perintah command line).\n• System Call Interface: Jembatan komunikasi antara aplikasi dan kernel." },
+                    { title: "2. Kernel dan Fungsinya", body: "Kernel mengelola alokasi CPU, manajemen memori, dan akses ke perangkat I/O. Arsitektur Kernel dibagi menjadi:\n- Monolithic Kernel: Seluruh layanan SO berjalan di dalam satu ruang memori kernel (Contoh: Linux, MS-DOS).\n- Microkernel: Hanya fungsi inti yang berada di kernel, layanan lainnya berjalan di User Space (Contoh: Mach, QNX)." },
+                    { title: "3. User Mode vs Kernel Mode (Dual-Mode Operation)", body: "Untuk melindungi komputer dari program jahat atau error, CPU menyediakan 2 mode:\n- User Mode (Bit Mode 1): Aplikasi pengguna berjalan di sini dengan akses terbatas.\n- Kernel Mode (Bit Mode 0): OS berjalan dengan akses penuh ke seluruh instruksi dan hardware fisik." },
+                    { title: "4. System Call & Device Driver", body: "• System Call: Pemanggilan fungsi oleh aplikasi ke kernel (misal: membuka file `read()`, membuat proses `fork()`).\n• Device Driver: Perangkat lunak khusus yang menerjemahkan perintah umum SO menjadi perintah spesifik perangkat keras tertentu." }
+                ]
+            },
+            3: {
+                title: "BAB 3 – MANAJEMEN PROSES (PROCESS MANAGEMENT)",
+                desc: "Mempelajari status proses, Process Control Block (PCB), penjadwalan CPU, multitasking, thread, serta konsep penanganan Deadlock.",
+                competency: "Siswa dapat menganalisis siklus hidup proses, menghitung algoritma penjadwalan FCFS/SJF, dan memahami pencegahan deadlock.",
+                submodules: [
+                    { title: "1. Pengertian Proses vs Program", body: "• Program: Entitas pasif berupa kumpulan instruksi yang tersimpan di disk (file `.exe` atau script).\n• Proses: Entitas aktif berupa program yang sedang dieksekusi di memori RAM dan membutuhkan sumber daya CPU." },
+                    { title: "2. Process Control Block (PCB)", body: "Setiap proses diwakili di SO oleh PCB yang berisi:\n- Process ID (PID)\n- Process State (New, Ready, Running, Waiting, Terminated)\n- Program Counter (Alamat instruksi berikutnya)\n- Register CPU & Informasi Alokasi Memori." },
+                    { title: "3. 5 Status Siklus Hidup Proses (Process Lifecycle)", body: "1. New: Proses baru dibuat.\n2. Ready: Proses siap dieksekusi, menunggu giliran CPU.\n3. Running: Instruksi sedang dieksekusi oleh CPU.\n4. Waiting/Blocked: Proses menunggu event I/O selesai.\n5. Terminated: Proses selesai dieksekusi." },
+                    { title: "4. Algoritma Penjadwalan CPU", body: "• FCFS (First-Come, First-Served): Proses yang pertama tiba dieksekusi terlebih dahulu.\n• SJF (Shortest Job First): Proses dengan waktu eksekusi tersingkat dikerjakan lebih dahulu.\n• Round Robin (RR): Setiap proses mendapat jatah waktu CPU (Time Quantum) yang sama secara bergantian." }
+                ]
+            },
+            4: {
+                title: "BAB 4 – MANAJEMEN MEMORI (MEMORY MANAGEMENT)",
+                desc: "Memahami hierarki memori, alokasi memori fisik, fenomena fragmentasi, teknik Paging, Segmentation, dan Virtual Memory.",
+                competency: "Siswa mampu menjelaskan pemetaan alamat fisik ke virtual, membedakan fragmentasi internal/eksternal, serta konsep Paging.",
+                submodules: [
+                    { title: "1. Hierarki & Konsep Memori Komputer", body: "Hierarki memori berdasarkan kecepatan dan harga:\n1. Register CPU (Paling cepat, kapasitas sangat kecil)\n2. Cache Memory (L1, L2, L3 Cache)\n3. Memori Utama (RAM)\n4. Penyimpanan Sekunder (SSD, NVMe, Harddisk)" },
+                    { title: "2. Alokasi Memori Kontigu & Fragmentasi", body: "Alokasi kontigu membagi memori menjadi blok-blok. Masalah yang muncul:\n- Fragmentasi Internal: Sisa memori tidak terpakai di dalam blok yang dialokasikan.\n- Fragmentasi Eksternal: Total ruang kosong memori mencukupi, tetapi terpecah-pecah sehingga tidak bisa menampung proses baru secara utuh." },
+                    { title: "3. Paging & Virtual Memory", body: "• Paging: Membagi memori fisik menjadi frame berukuran tetap dan membagi memori logika menjadi page. Ini menghilangkan fragmentasi eksternal.\n• Virtual Memory: Teknik yang memungkinkan eksekusi proses yang ukurannya melebihi kapasitas memori fisik (RAM) dengan bantuan ruang SWAP di disk." }
+                ]
+            },
+            5: {
+                title: "BAB 5 – HUBUNGAN MANAJEMEN PROSES DAN MEMORI",
+                desc: "Analisis integrasi antara alokasi memori dengan eksekusi CPU saat banyak aplikasi dijalankan secara bersamaan (Multitasking).",
+                competency: "Siswa mampu mengidentifikasi penyebab penurunan performa (Thrashing) dan proses swapping memori saat beban kerja tinggi.",
+                submodules: [
+                    { title: "1. Alokasi Memori untuk Setiap Proses", body: "Ketika proses dimuat ke RAM, memori dibagi menjadi beberapa segmen:\n- Text Segment: Kode instruksi program.\n- Data Segment: Variabel global dan statis.\n- Heap Segment: Memori dinamis yang dialokasikan saat runtime.\n- Stack Segment: Variabel lokal dan fungsi pemanggilan." },
+                    { title: "2. Konsep Swapping & Thrashing", body: "• Swapping: Memindahkan proses sementara dari RAM ke ruang penyimpanan sekunder (Swap Space) jika RAM penuh.\n• Thrashing: Kondisi kemacetan total di mana sistem terlalu sibuk melakukan swap page keluar-masuk memori daripada mengeksekusi instruksi CPU." }
+                ]
+            }
+        };
+
+        // Quiz Questions Data (BAB 7)
+        const quizQuestions = [
+            { id: 1, q: "Komponen inti sistem operasi yang mengelola alokasi CPU dan komunikasi langsung dengan perangkat keras disebut...", options: ["User Interface", "Kernel", "Device Driver", "Compiler"], ans: 1, exp: "Kernel adalah inti utama sistem operasi yang berada di memori RAM dan mengontrol akses ke hardware." },
+            { id: 2, q: "Manakah di bawah ini yang MERUPAKAN entitas aktif yang sedang dieksekusi di memori RAM?", options: ["Program", "Proses", "File Executable", "Source Code"], ans: 1, exp: "Program adalah instruksi pasif di disk, sedangkan Proses adalah program aktif yang sedang dieksekusi di memori." },
+            { id: 3, q: "Mode eksekusi CPU dengan akses penuh ke seluruh instruksi dan perangkat keras komputer disebut...", options: ["User Mode", "Kernel Mode", "Guest Mode", "Safe Mode"], ans: 1, exp: "Kernel Mode (Ring 0) memiliki hak akses penuh ke hardware fisik komputer." },
+            { id: 4, q: "Sisa ruang memori kosong yang terbuang di DALAM blok alokasi memori yang sudah ditentukan disebut...", options: ["Fragmentasi Eksternal", "Fragmentasi Internal", "Paging Fault", "Thrashing"], ans: 1, exp: "Fragmentasi internal terjadi di dalam blok memori yang dialokasikan jika ukuran proses lebih kecil dari ukuran blok." },
+            { id: 5, q: "Algoritma penjadwalan CPU yang mengeksekusi proses berdasarkan waktu kedatangan paling awal adalah...", options: ["FCFS", "SJF", "Round Robin", "Priority Scheduling"], ans: 0, exp: "FCFS (First Come First Served) melayani proses yang pertama kali tiba di Ready Queue." }
+        ];
+
+        // Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            renderUserInfo();
+            showBab(1);
+            renderQuiz();
+            renderFeedbacks();
+            runCpuSimulation();
+        });
+
+        // Navigation Tab Switching
+        function switchTab(tabId) {
+            const tabs = ['materi', 'praktikum', 'simulasi', 'evaluasi', 'game', 'feedback'];
+            tabs.forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-500');
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('tab-active');
+            document.getElementById(`tab-${tabId}`).classList.remove('text-slate-500');
+        }
+
+        // Render Bab Content
+        function showBab(babNum) {
+            activeBab = babNum;
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`babBtn-${i}`);
+                if (i === babNum) {
+                    btn.className = "p-4 rounded-xl border border-brand-500 bg-brand-50 text-brand-700 font-bold text-center text-xs sm:text-sm shadow-xs transition";
+                } else {
+                    btn.className = "p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-center text-xs sm:text-sm shadow-xs transition";
+                }
+            }
+
+            const data = babData[babNum];
+            let html = `
+                <div class="border-b border-slate-100 pb-4 space-y-2">
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Materi Kurikulum Utama</span>
+                    <h2 class="text-2xl font-extrabold text-slate-900">${data.title}</h2>
+                    <p class="text-xs sm:text-sm text-slate-600">${data.desc}</p>
+                    <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-900 mt-2">
+                        <strong>Capaian Kompetensi:</strong> ${data.competency}
+                    </div>
+                </div>
+                <div class="space-y-6 pt-2">
+            `;
+
+            data.submodules.forEach(sub => {
+                html += `
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-5 space-y-2 hover:border-brand-300 transition">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                            <i class="fa-solid fa-book-bookmark text-brand-500 text-sm"></i>
+                            <span>${sub.title}</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">${sub.body}</p>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            document.getElementById('babContentArea').innerHTML = html;
+        }
+
+        // CPU Simulation Logic
+        function runCpuSimulation() {
+            const p1 = parseInt(document.getElementById('p1Burst').value) || 1;
+            const p2 = parseInt(document.getElementById('p2Burst').value) || 1;
+            const p3 = parseInt(document.getElementById('p3Burst').value) || 1;
+            const algo = document.getElementById('simAlgoSelect').value;
+
+            let procs = [
+                { name: 'P1', burst: p1, color: 'bg-brand-500' },
+                { name: 'P2', burst: p2, color: 'bg-emerald-500' },
+                { name: 'P3', burst: p3, color: 'bg-purple-500' }
+            ];
+
+            if (algo === 'SJF') {
+                procs.sort((a, b) => a.burst - b.burst);
+            }
+
+            let chartHtml = '';
+            let currentTime = 0;
+            let totalWaiting = 0;
+
+            procs.forEach(p => {
+                let waitTime = currentTime;
+                totalWaiting += waitTime;
+                currentTime += p.burst;
+
+                chartHtml += `
+                    <div class="${p.color} p-3 rounded-lg flex-grow text-center shadow-xs">
+                        <div>${p.name}</div>
+                        <div class="text-[10px] font-normal opacity-90">${p.burst} ms</div>
+                    </div>
+                `;
+            });
+
+            const awt = (totalWaiting / 3).toFixed(2);
+
+            document.getElementById('ganttChart').innerHTML = chartHtml;
+            document.getElementById('awtResult').innerHTML = `
+                <p><strong>Urutan Eksekusi:</strong> ${procs.map(p => p.name).join(' ➔ ')}</p>
+                <p><strong>Total Waktu Eksekusi:</strong> ${currentTime} ms</p>
+                <p class="text-brand-600 font-bold text-sm mt-1">Average Waiting Time (AWT): ${awt} ms</p>
+            `;
+        }
+
+        // Render Quiz
+        function renderQuiz() {
+            let html = '';
+            quizQuestions.forEach((q, idx) => {
+                html += `
+                    <div class="space-y-3 border-b border-slate-100 pb-6">
+                        <p class="font-bold text-slate-900 text-sm sm:text-base">${idx + 1}. ${q.q}</p>
+                        <div class="space-y-2">
+                `;
+                q.options.forEach((opt, oIdx) => {
+                    html += `
+                        <label class="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs font-semibold text-slate-700">
+                            <input type="radio" name="q_${q.id}" value="${oIdx}" class="text-brand-600 focus:ring-brand-500">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+                html += `
+                        </div>
+                        <div id="exp_${q.id}" class="hidden p-3 rounded-lg bg-slate-100 text-xs text-slate-700 border-l-4 border-brand-500">
+                            <strong>Pembahasan:</strong> ${q.exp}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="pt-4 flex justify-between items-center">
+                    <button onclick="submitQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow transition">Kirim Jawaban & Lihat Hasil</button>
+                </div>
+            `;
+
+            document.getElementById('quizContainer').innerHTML = html;
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach(q => {
+                const selected = document.querySelector(`input[name="q_${q.id}"]:checked`);
+                const expEl = document.getElementById(`exp_${q.id}`);
+                expEl.classList.remove('hidden');
+
+                if (selected && parseInt(selected.value) === q.ans) {
+                    score += (100 / quizQuestions.length);
+                }
+            });
+
+            document.getElementById('quizScoreBadge').classList.remove('hidden');
+            document.getElementById('quizScoreVal').innerText = `${Math.round(score)}/100`;
+        }
+
+        // Feedback System Logic
+        function renderFeedbacks() {
+            document.getElementById('totalFeedbackCount').innerText = feedbacks.length;
+            const container = document.getElementById('feedbackListContainer');
+            
+            if (feedbacks.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Belum ada umpan balik yang dikirimkan.</p>`;
+                return;
+            }
+
+            let html = '';
+            feedbacks.forEach(fb => {
+                const stars = '⭐'.repeat(fb.rating);
+                const canDelete = currentUser.role === 'guru' || currentUser.role === 'admin';
+
+                html += `
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-2 relative shadow-2xs">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-bold text-slate-900 text-sm">${fb.name}</span>
+                                <span class="text-xs text-slate-500 ml-2">(${fb.kelas || 'Staff/Guru'})</span>
+                                <div class="text-xs text-amber-500 font-bold mt-0.5">${stars} • <span class="text-slate-400 font-normal">${fb.category}</span></div>
+                            </div>
+                            ${canDelete ? `
+                                <button onclick="openDeleteModal(${fb.id})" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition text-xs" title="Hapus Feedback">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed">${fb.comment}</p>
+                        <span class="text-[10px] text-slate-400 block text-right">${fb.date}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            if (currentUser.role === 'guru' || currentUser.role === 'admin') {
+                document.getElementById('adminFeedbackBadge').classList.remove('hidden');
+            } else {
+                document.getElementById('adminFeedbackBadge').classList.add('hidden');
+            }
+        }
+
+        function submitFeedback() {
+            const category = document.getElementById('fbCategory').value;
+            const rating = parseInt(document.getElementById('fbRating').value);
+            const comment = document.getElementById('fbComment').value.trim();
+
+            if (!comment) {
+                alert('Silakan tuliskan komentar ulasan Anda.');
+                return;
+            }
+
+            const newFb = {
+                id: Date.now(),
+                name: currentUser.name,
+                kelas: currentUser.kelas,
+                role: currentUser.role,
+                category: category,
+                rating: rating,
+                comment: comment,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            feedbacks.unshift(newFb);
+            document.getElementById('fbComment').value = '';
+            renderFeedbacks();
+            alert('Terima kasih! Umpan balik Anda berhasil dikirim.');
+        }
+
+        function openDeleteModal(id) {
+            pendingDeleteId = id;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function confirmDeleteFeedback() {
+            if (pendingDeleteId) {
+                feedbacks = feedbacks.filter(f => f.id !== pendingDeleteId);
+                renderFeedbacks();
+                closeDeleteModal();
+            }
+        }
+
+        // Auth Modal & Role Switcher Logic
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function selectRole(role) {
+            currentUser.role = role;
+            ['siswa', 'guru', 'admin'].forEach(r => {
+                const btn = document.getElementById(`roleBtn-${r}`);
+                if (r === role) {
+                    btn.className = "py-2.5 rounded-lg border-2 border-brand-500 bg-brand-50 text-brand-700 font-bold text-xs";
+                } else {
+                    btn.className = "py-2.5 rounded-lg border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-50";
+                }
+            });
+
+            if (role === 'siswa') {
+                document.getElementById('studentFields').classList.remove('hidden');
+                document.getElementById('staffFields').classList.add('hidden');
+            } else {
+                document.getElementById('studentFields').classList.add('hidden');
+                document.getElementById('staffFields').classList.remove('hidden');
+            }
+        }
+
+        function saveUserSession() {
+            if (currentUser.role === 'siswa') {
+                const name = document.getElementById('loginStudentName').value.trim();
+                const kls = document.getElementById('loginStudentClass').value.trim();
+
+                if (!name || !kls) {
+                    alert('Harap isi Nama Lengkap dan Kelas Anda.');
+                    return;
+                }
+                currentUser.name = name;
+                currentUser.kelas = kls;
+            } else {
+                const staffName = document.getElementById('loginStaffName').value.trim();
+                if (!staffName) {
+                    alert('Harap isi Nama atau NIP Anda.');
+                    return;
+                }
+                currentUser.name = staffName;
+                currentUser.kelas = currentUser.role === 'guru' ? 'Pengajar / Guru' : 'Administrator Sistem';
+            }
+
+            renderUserInfo();
+            renderFeedbacks();
+            closeAuthModal();
+        }
+
+        function renderUserInfo() {
+            document.getElementById('userInfoDisplay').classList.remove('hidden');
+            document.getElementById('userNameTag').innerText = currentUser.name;
+            document.getElementById('userRoleTag').innerText = currentUser.role.toUpperCase();
+        }
+
+        // Flashcards Logic
+        function flipCard(cardEl) {
+            const front = cardEl.querySelector('.card-front');
+            const back = cardEl.querySelector('.card-back');
+            front.classList.toggle('hidden');
+            back.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
